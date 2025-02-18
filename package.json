@@ -1,12 +1,17 @@
 {
   "name": "presentation-app",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "type": "module",
   "private": true,
   "dependencies": {
+    "lucide-react": "^0.330.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "lucide-react": "^0.330.0"
+    "serve": "^14.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
