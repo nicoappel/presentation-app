@@ -1,26 +1,20 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Edit, Play, Save } from 'lucide-react';
 
-const COLORS = {
-  heavyGreen: '#00534C',
-  lightGreen: '#00B388',
-  warmYellow: '#F2C75C',
-  lightGrey: '#F4F5F5'
-};
-
 const defaultSlides = [
   {
-    title: "Sample Title Slide",
-    subtitle: "With a subtitle\nMultiple lines possible",
+    title: "Welcome to Your Presentation",
+    subtitle: "Created with React and Tailwind CSS\nCustomizable and elegant",
     type: "title"
   },
   {
-    title: "Content Slide Example",
-    content: "This is the main content area where you can explain your key points.",
+    title: "Key Features",
+    content: "This presentation editor comes with a range of powerful features to help you create engaging slides.",
     points: [
-      "First bullet point",
-      "Second bullet point",
-      "Third bullet point"
+      "Fully customizable slides with your branding",
+      "Simple and intuitive editing interface",
+      "Support for title and content slides",
+      "Easy presentation mode with keyboard navigation"
     ]
   }
 ];
@@ -31,59 +25,61 @@ const SlideEditor = ({ slide, onUpdate, onDelete }) => {
   };
 
   const handlePointsChange = (value) => {
-    const points = value.split('\n').filter(point => point.trim());
-    onUpdate({ ...slide, points });
-  };
+  // Keep the empty lines as they are, so a new bullet is created even if it's initially blank.
+  const points = value.split('\n');
+  onUpdate({ ...slide, points });
+};
 
   return (
-    <div className="p-6 border rounded-lg mb-4 bg-white">
-      <div className="space-y-4">
+    <div className="p-8 border border-gray-200 rounded-xl shadow-sm mb-6 bg-white">
+      <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-heavy-green text-sm font-medium mb-2">Title</label>
           <input
             type="text"
             value={slide.title}
             onChange={(e) => handleChange('title', e.target.value)}
-            className="mt-1 w-full p-2 border rounded"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-light-green focus:border-transparent"
           />
         </div>
-        
+
         {slide.type === 'title' ? (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+            <label className="block text-heavy-green text-sm font-medium mb-2">Subtitle</label>
             <textarea
               value={slide.subtitle}
               onChange={(e) => handleChange('subtitle', e.target.value)}
-              className="mt-1 w-full p-2 border rounded"
+              className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-light-green focus:border-transparent"
               rows={3}
             />
           </div>
         ) : (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Content</label>
+              <label className="block text-heavy-green text-sm font-medium mb-2">Content</label>
               <textarea
                 value={slide.content}
                 onChange={(e) => handleChange('content', e.target.value)}
-                className="mt-1 w-full p-2 border rounded"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-light-green focus:border-transparent"
                 rows={4}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Bullet Points (one per line)</label>
+              <label className="block text-heavy-green text-sm font-medium mb-2">Bullet Points</label>
               <textarea
                 value={slide.points?.join('\n')}
                 onChange={(e) => handlePointsChange(e.target.value)}
-                className="mt-1 w-full p-2 border rounded"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-light-green focus:border-transparent"
                 rows={5}
+                placeholder="Enter one point per line"
               />
             </div>
           </>
         )}
-        
+
         <button
-          onClick={() => onDelete()}
-          className="px-4 py-2 text-red-600 hover:bg-red-50 rounded"
+          onClick={onDelete}
+          className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
         >
           Delete Slide
         </button>
@@ -95,11 +91,11 @@ const SlideEditor = ({ slide, onUpdate, onDelete }) => {
 const Slide = ({ slide }) => {
   if (slide.type === "title") {
     return (
-      <div className="h-full flex flex-col justify-center items-center text-center">
-        <h1 style={{ color: COLORS.heavyGreen }} className="text-8xl mb-16 font-light">
+      <div className="h-full flex flex-col justify-center items-center text-center px-12">
+        <h1 className="text-8xl text-heavy-green mb-16 font-light tracking-tight">
           {slide.title}
         </h1>
-        <p style={{ color: COLORS.lightGreen }} className="text-4xl whitespace-pre-line font-light">
+        <p className="text-4xl text-light-green whitespace-pre-line font-light tracking-wide">
           {slide.subtitle}
         </p>
       </div>
@@ -107,20 +103,20 @@ const Slide = ({ slide }) => {
   }
 
   return (
-    <div className="h-full flex flex-col justify-start pt-24">
-      <h2 style={{ color: COLORS.heavyGreen }} className="text-7xl mb-16 max-w-[20ch] font-light">
+    <div className="h-full flex flex-col justify-start pt-24 px-12">
+      <h2 className="text-7xl text-heavy-green mb-16 max-w-3xl font-light tracking-tight">
         {slide.title}
       </h2>
-      <div style={{ backgroundColor: COLORS.lightGrey }} className="p-12 rounded-lg mb-12 max-w-[35ch]">
-        <p style={{ color: COLORS.heavyGreen }} className="text-3xl leading-relaxed">
+      <div className="bg-light-grey p-12 rounded-xl mb-12 max-w-2xl">
+        <p className="text-3xl text-heavy-green leading-relaxed">
           {slide.content}
         </p>
       </div>
-      <div className="space-y-6 max-w-[30ch]">
+      <div className="space-y-6 max-w-2xl">
         {slide.points?.map((point, idx) => (
           <div key={idx} className="flex items-start gap-6">
-            <span style={{ color: COLORS.warmYellow }} className="text-2xl font-bold mt-2">•</span>
-            <p style={{ color: COLORS.heavyGreen }} className="text-2xl leading-relaxed">
+            <span className="text-warm-yellow text-2xl font-bold mt-2">•</span>
+            <p className="text-2xl text-heavy-green leading-relaxed">
               {point}
             </p>
           </div>
@@ -130,15 +126,37 @@ const Slide = ({ slide }) => {
   );
 };
 
+const PresentationControls = ({ slides, currentSlide, onPrevious, onNext }) => (
+  <div className="absolute bottom-8 right-12 flex items-center gap-6 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full">
+    <button
+      onClick={onPrevious}
+      className="p-2 text-light-green hover:text-heavy-green disabled:text-gray-300 transition-colors duration-200"
+      disabled={currentSlide === 0}
+    >
+      <ChevronLeft size={32} />
+    </button>
+    <span className="text-warm-yellow text-2xl font-medium">
+      {currentSlide + 1} / {slides.length}
+    </span>
+    <button
+      onClick={onNext}
+      className="p-2 text-light-green hover:text-heavy-green disabled:text-gray-300 transition-colors duration-200"
+      disabled={currentSlide === slides.length - 1}
+    >
+      <ChevronRight size={32} />
+    </button>
+  </div>
+);
+
 const PresentationApp = () => {
   const [slides, setSlides] = useState(defaultSlides);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPresenting, setIsPresenting] = useState(false);
 
   const handleAddSlide = (type) => {
-    const newSlide = type === 'title' 
-      ? { title: "New Title Slide", subtitle: "Subtitle", type: "title" }
-      : { title: "New Slide", content: "Content", points: ["Point 1", "Point 2"] };
+    const newSlide = type === 'title'
+      ? { title: "New Title Slide", subtitle: "Add your subtitle here", type: "title" }
+      : { title: "New Content Slide", content: "Add your content here", points: ["First point", "Second point"] };
     setSlides([...slides, newSlide]);
   };
 
@@ -151,6 +169,9 @@ const PresentationApp = () => {
   const handleDeleteSlide = (index) => {
     const newSlides = slides.filter((_, i) => i !== index);
     setSlides(newSlides);
+    if (currentSlide >= newSlides.length) {
+      setCurrentSlide(Math.max(0, newSlides.length - 1));
+    }
   };
 
   const handleSave = () => {
@@ -172,70 +193,51 @@ const PresentationApp = () => {
         try {
           const loadedSlides = JSON.parse(e.target.result);
           setSlides(loadedSlides);
+          setCurrentSlide(0);
         } catch (error) {
-          console.error('Error loading file:', error);
+          console.error('Error loading presentation:', error);
         }
       };
       reader.readAsText(file);
     }
   };
 
-  // Add Barlow font import
-const fontFamily = "Barlow, -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
-
-if (isPresenting) {
+  if (isPresenting) {
     return (
-      <div 
-        className="h-screen w-full px-24 py-16 relative bg-white focus:outline-none"
+      <div
+        className="h-screen w-full relative bg-white focus:outline-none font-barlow"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Escape') setIsPresenting(false);
           if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) setCurrentSlide(c => c + 1);
           if (e.key === 'ArrowLeft' && currentSlide > 0) setCurrentSlide(c => c - 1);
         }}
-        style={{ fontFamily }}
       >
         <Slide slide={slides[currentSlide]} />
-        
-        <div className="absolute bottom-8 right-12 flex items-center gap-6">
-          <button 
-            onClick={() => setCurrentSlide(c => c - 1)}
-            className="p-3 hover:text-white disabled:text-gray-300"
-            style={{ color: COLORS.lightGreen }}
-            disabled={currentSlide === 0}
-          >
-            <ChevronLeft size={32} />
-          </button>
-          <span style={{ color: COLORS.warmYellow }} className="text-2xl">
-            {currentSlide + 1} / {slides.length}
-          </span>
-          <button 
-            onClick={() => setCurrentSlide(c => c + 1)}
-            className="p-3 hover:text-white disabled:text-gray-300"
-            style={{ color: COLORS.lightGreen }}
-            disabled={currentSlide === slides.length - 1}
-          >
-            <ChevronRight size={32} />
-          </button>
-        </div>
+        <PresentationControls
+          slides={slides}
+          currentSlide={currentSlide}
+          onPrevious={() => setCurrentSlide(c => c - 1)}
+          onNext={() => setCurrentSlide(c => c + 1)}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-8 flex justify-between items-center bg-white p-6 rounded-xl shadow-sm">
           <div className="space-x-4">
             <button
               onClick={() => handleAddSlide('title')}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-6 py-3 bg-light-green text-white rounded-lg hover:bg-heavy-green transition-colors duration-200"
             >
               Add Title Slide
             </button>
             <button
               onClick={() => handleAddSlide('content')}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="px-6 py-3 bg-warm-yellow text-heavy-green rounded-lg hover:bg-yellow-400 transition-colors duration-200"
             >
               Add Content Slide
             </button>
@@ -243,26 +245,26 @@ if (isPresenting) {
           <div className="space-x-4">
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
             >
-              <Save className="inline-block mr-2" size={16} />
+              <Save className="mr-2" size={16} />
               Save
             </button>
-            <label className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer">
+            <label className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 cursor-pointer">
               <input
                 type="file"
                 accept=".json"
                 onChange={handleLoad}
                 className="hidden"
               />
-              <Edit className="inline-block mr-2" size={16} />
+              <Edit className="mr-2" size={16} />
               Load
             </label>
             <button
               onClick={() => setIsPresenting(true)}
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              className="inline-flex items-center px-4 py-2 bg-heavy-green text-white rounded-lg hover:bg-light-green transition-colors duration-200"
             >
-              <Play className="inline-block mr-2" size={16} />
+              <Play className="mr-2" size={16} />
               Present
             </button>
           </div>
@@ -270,7 +272,9 @@ if (isPresenting) {
 
         {slides.map((slide, index) => (
           <div key={index} className="mb-8">
-            <h3 className="text-lg font-medium mb-2">Slide {index + 1}</h3>
+            <h3 className="text-lg font-medium text-heavy-green mb-3">
+              Slide {index + 1}
+            </h3>
             <SlideEditor
               slide={slide}
               onUpdate={(updatedSlide) => handleUpdateSlide(index, updatedSlide)}
