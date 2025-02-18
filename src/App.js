@@ -25,10 +25,9 @@ const SlideEditor = ({ slide, onUpdate, onDelete }) => {
   };
 
   const handlePointsChange = (value) => {
-  // Keep the empty lines as they are, so a new bullet is created even if it's initially blank.
-  const points = value.split('\n');
-  onUpdate({ ...slide, points });
-};
+    const points = value.split('\n');
+    onUpdate({ ...slide, points });
+  };
 
   return (
     <div className="p-8 border border-gray-200 rounded-xl shadow-sm mb-6 bg-white">
@@ -42,7 +41,6 @@ const SlideEditor = ({ slide, onUpdate, onDelete }) => {
             className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-light-green focus:border-transparent"
           />
         </div>
-
         {slide.type === 'title' ? (
           <div>
             <label className="block text-heavy-green text-sm font-medium mb-2">Subtitle</label>
@@ -76,7 +74,6 @@ const SlideEditor = ({ slide, onUpdate, onDelete }) => {
             </div>
           </>
         )}
-
         <button
           onClick={onDelete}
           className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
@@ -101,7 +98,6 @@ const Slide = ({ slide }) => {
       </div>
     );
   }
-
   return (
     <div className="h-full flex flex-col justify-start pt-24 px-12">
       <h2 className="text-7xl text-heavy-green mb-16 max-w-3xl font-light tracking-tight">
@@ -152,6 +148,58 @@ const PresentationApp = () => {
   const [slides, setSlides] = useState(defaultSlides);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPresenting, setIsPresenting] = useState(false);
+  const [isMarkdownEditing, setIsMarkdownEditing] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState(slidesToMarkdown(defaultSlides));
+
+  // Convert slides to markdown with '---' as a separator
+  function slidesToMarkdown(slides) {
+    return slides.map(slide => {
+      if (slide.type === 'title') {
+        return `# ${slide.title}\n## ${slide.subtitle}`;
+      } else {
+        const points = slide.points ? slide.points.map(point => `- ${point}`).join('\n') : '';
+        return `# ${slide.title}\n\n${slide.content}\n\n${points}`;
+      }
+    }).join('\n\n---\n\n');
+  }
+
+  // Parse markdown into slide objects
+  function markdownToSlides(markdown) {
+    const slideStrings = markdown.split(/\n---\n/);
+    const parsedSlides = slideStrings.map(slideStr => {
+      const lines = slideStr.split('\n').map(line => line.trim()).filter(line => line !== '');
+      if (lines.length === 0) return null;
+      if (lines[0].startsWith('# ') && lines[1] && lines[1].startsWith('## ')) {
+        return {
+          type: 'title',
+          title: lines[0].replace(/^#\s+/, ''),
+          subtitle: lines[1].replace(/^##\s+/, '')
+        };
+      } else {
+        let title = '';
+        let content = '';
+        let points = [];
+        if (lines[0].startsWith('# ')) {
+          title = lines[0].replace(/^#\s+/, '');
+        } else {
+          title = lines[0];
+        }
+        let bulletStartIndex = lines.findIndex((line, index) => index > 0 && line.startsWith('- '));
+        if (bulletStartIndex === -1) {
+          content = lines.slice(1).join(' ');
+        } else {
+          content = lines.slice(1, bulletStartIndex).join(' ');
+          points = lines.slice(bulletStartIndex).map(line => line.replace(/^-+\s*/, ''));
+        }
+        return {
+          title,
+          content,
+          points
+        };
+      }
+    }).filter(slide => slide !== null);
+    return parsedSlides;
+  }
 
   const handleAddSlide = (type) => {
     const newSlide = type === 'title'
@@ -202,6 +250,12 @@ const PresentationApp = () => {
     }
   };
 
+  const handleSaveMarkdown = () => {
+    const newSlides = markdownToSlides(markdownContent);
+    setSlides(newSlides);
+    setIsMarkdownEditing(false);
+  };
+
   if (isPresenting) {
     return (
       <div
@@ -220,6 +274,27 @@ const PresentationApp = () => {
           onPrevious={() => setCurrentSlide(c => c - 1)}
           onNext={() => setCurrentSlide(c => c + 1)}
         />
+      </div>
+    );
+  }
+
+  if (isMarkdownEditing) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <h2 className="text-2xl mb-4">Markdown Editor</h2>
+        <textarea
+          value={markdownContent}
+          onChange={(e) => setMarkdownContent(e.target.value)}
+          className="w-full h-96 p-4 border border-gray-300 rounded-lg"
+        />
+        <div className="mt-4 space-x-4">
+          <button onClick={handleSaveMarkdown} className="px-4 py-2 bg-light-green text-white rounded-lg">
+            Save Markdown
+          </button>
+          <button onClick={() => setIsMarkdownEditing(false)} className="px-4 py-2 bg-gray-600 text-white rounded-lg">
+            Cancel
+          </button>
+        </div>
       </div>
     );
   }
@@ -267,9 +342,17 @@ const PresentationApp = () => {
               <Play className="mr-2" size={16} />
               Present
             </button>
+            <button
+              onClick={() => {
+                setMarkdownContent(slidesToMarkdown(slides));
+                setIsMarkdownEditing(true);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              Edit Markdown
+            </button>
           </div>
         </div>
-
         {slides.map((slide, index) => (
           <div key={index} className="mb-8">
             <h3 className="text-lg font-medium text-heavy-green mb-3">
